@@ -13,8 +13,8 @@ def test_backfill_invokes_promtool(monkeypatch, tmp_path):
     csv_text = Path("tests/data/sample_indicator.csv").read_text()
 
     def fake_fetch_csv(cube, language="en", params=None):
-        assert cube == "monzano"
-        assert params == {"filter[KEYSERIES]": "A.POLIRATE"}
+        assert cube == "snboffzisa"
+        assert params == {"dimSel": "D0(LZ)"}
         return csv_text
 
     monkeypatch.setattr("snb_prometheus.backfill.fetch_csv", fake_fetch_csv)
@@ -27,7 +27,7 @@ def test_backfill_invokes_promtool(monkeypatch, tmp_path):
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
-    cfg = Config(indicators={"policy_rate": ("monzano", "A.POLIRATE")})
+    cfg = Config(indicators={"policy_rate": ("snboffzisa", "LZ")})
     backfill(cfg, tsdb_path=str(tmp_path))
 
     cmd = recorded["cmd"]

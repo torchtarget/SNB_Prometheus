@@ -1,7 +1,3 @@
-"""Utilities for importing historical SNB data into Prometheus."""
-
-from __future__ import annotations
-
 import csv
 import subprocess
 import tempfile
@@ -10,7 +6,6 @@ from typing import List, Tuple
 
 from .config import Config, CONFIG
 from .fetcher import fetch_csv
-
 
 # Prometheus metric name used throughout the project
 _METRIC_NAME = "snb_indicator_value"
@@ -49,7 +44,11 @@ def _build_openmetrics(config: Config) -> str:
 
     lines: List[str] = [f"# TYPE {_METRIC_NAME} gauge\n"]
     for indicator, (cube, keyseries) in config.indicators.items():
-        csv_text = fetch_csv(cube, params={"filter[KEYSERIES]": keyseries})
+        if "." in keyseries:
+            params = {"filter[KEYSERIES]": keyseries}
+        else:
+            params = {"dimSel": f"D0({keyseries})"}
+        csv_text = fetch_csv(cube, params=params)
         for ts, value in _parse_series(csv_text):
             lines.append(
                 f"{_METRIC_NAME}{{indicator=\"{indicator}\"}} {value} {ts}\n"

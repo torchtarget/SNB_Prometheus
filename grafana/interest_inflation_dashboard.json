@@ -1,0 +1,41 @@
+{
+  "title": "Interest Rates and Inflation",
+  "uid": "interest-inflation-demo",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {"from": "now-5y", "to": "now"},
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Interest Rates",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "percent"}},
+      "targets": [
+        {
+          "expr": "snb_indicator_value{indicator=\"switzerland_interest_rate\"}",
+          "legendFormat": "Switzerland"
+        },
+        {
+          "expr": "snb_indicator_value{indicator=\"uk_interest_rate\"}",
+          "legendFormat": "United Kingdom"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Inflation",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "percent"}},
+      "targets": [
+        {
+          "expr": "snb_indicator_value{indicator=\"switzerland_inflation\"}",
+          "legendFormat": "Switzerland"
+        },
+        {
+          "expr": "snb_indicator_value{indicator=\"uk_inflation\"}",
+          "legendFormat": "United Kingdom"
+        }
+      ]
+    }
+  ]
+}
