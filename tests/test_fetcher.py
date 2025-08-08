@@ -1,4 +1,7 @@
 import pathlib
+import sys
+
+sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 
 from snb_prometheus.fetcher import parse_latest
 
