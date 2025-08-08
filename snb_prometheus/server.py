@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import time
-from typing import Dict
+from typing import Dict, Tuple
 
 from prometheus_client import start_http_server
 
 from .config import Config, CONFIG
-from .fetcher import fetch_csv, parse_latest
+from .fetcher import fetch_latest
 from .metrics import set_indicator
 
 
-def _update_once(indicators: Dict[str, str]) -> None:
-    for name, url in indicators.items():
-        csv_text = fetch_csv(url)
-        _, value = parse_latest(csv_text)
+def _update_once(indicators: Dict[str, Tuple[str, str]]) -> None:
+    for name, (cube, keyseries) in indicators.items():
+        _, value = fetch_latest(cube, keyseries)
         set_indicator(name, value)
 
 
