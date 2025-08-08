@@ -1,4 +1,4 @@
-"""Fetching and parsing SNB data feeds."""
+"""Fetching and parsing data feeds from the SNB."""
 
 from __future__ import annotations
 
@@ -22,13 +22,14 @@ def fetch_csv(cube: str, language: str = "en", params: Optional[Dict[str, str]] 
 
 
 def parse_latest(csv_text: str) -> Tuple[str, float]:
-    """Return (date, value) for the last row in an SNB CSV text.
+    """Return ``(date, value)`` for the last row in an SNB CSV text.
 
     SNB downloads include a metadata header separated from the data by a blank
-    line and use semicolons as field delimiters. This mirrors the logic found
-    in `ReferenceFunctions.R` where the file is read line-wise until the first
+    line and use semicolons as field delimiters. This mirrors the logic found in
+    ``ReferenceFunctions.R`` where the file is read line-wise until the first
     empty line and then parsed as a table.
     """
+
     lines = csv_text.splitlines()
     try:
         empty_idx = next(i for i, line in enumerate(lines) if not line.strip())
@@ -50,10 +51,16 @@ def parse_latest(csv_text: str) -> Tuple[str, float]:
 
 
 def fetch_latest(cube: str, keyseries: str, language: str = "en") -> Tuple[str, float]:
-    """Convenience wrapper returning the latest observation for a cube.
+    """Return the latest observation for ``keyseries`` within ``cube``.
 
-    This follows the behaviour of the R `fetch_data` function by building the
-    URL from the cube identifier and passing the key series as a filter.
+    Most SNB cubes allow selecting a single series via the ``dimSel`` query
+    parameter. For legacy cubes that require the ``filter[KEYSERIES]`` syntax we
+    fall back to that if the series identifier contains a dot.
     """
-    csv_text = fetch_csv(cube, language, params={"filter[KEYSERIES]": keyseries})
+
+    if "." in keyseries:
+        params = {"filter[KEYSERIES]": keyseries}
+    else:
+        params = {"dimSel": f"D0({keyseries})"}
+    csv_text = fetch_csv(cube, language, params=params)
     return parse_latest(csv_text)
